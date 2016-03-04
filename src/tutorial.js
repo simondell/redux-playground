@@ -1,14 +1,38 @@
-import { createStore } from 'redux';
+import * as Redux from 'redux';
+import { INCREMENT, DECREMENT } from './actions';
 
-const counter = ( state = 0, action ) => {
+export const counter_reducer = ( state = 0, action ) => {
     switch( action.type ) {
-    case "INCREMENT":
+    case INCREMENT.type:
         return state + 1;
-    case "DECREMENT":
-        return state - 2;
+    case DECREMENT.type:
+        return state - 1;
     default:
         return state;
     }
 }
 
-export const store = createStore( counter );
+export const store = Redux.createStore( counter_reducer );
+
+export function createStore( reducer ) {
+	let state;
+	let listeners = [];
+
+	const getState = _ => state;
+
+	const dispatch = (action) => {
+		state = reducer( state, action );
+		listeners.forEach( listener => listener() );
+	};
+
+	const subscribe = (listener) => {
+		listeners.push( listener );
+		return _ => {
+			listeners = listeners.filter( l => l !== listener );
+		};
+	};
+
+	dispatch({});
+
+	return { getState, dispatch, subscribe };
+}
